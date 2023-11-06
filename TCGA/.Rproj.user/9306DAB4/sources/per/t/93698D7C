@@ -1,0 +1,27 @@
+{
+    "id": "93698D7C",
+    "path": "D:/#Projects/Cancer-Synergy/TCGA/First.R",
+    "project_path": "First.R",
+    "type": "r_source",
+    "hash": "1455708490",
+    "contents": "",
+    "dirty": true,
+    "created": 1697537952322.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "75,17",
+        "scrollLine": "63"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1699257268,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1699292169155,
+    "read_only": false,
+    "read_only_alternatives": []
+}
