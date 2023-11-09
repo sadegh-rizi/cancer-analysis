@@ -159,60 +159,24 @@ TCGAvisualize_EAbarplot(
   nBar = 10
 )
 
+#It crashes!!
 data_Hc2 <- TCGAanalyze_Clustering(
   tabDF = dataFilt,method='consensus',methodHC = 'ward.D2')
 
 
 
 colData(tcga_br)$groupsHC <- paste0("EC",data_Hc2[[4]]$consensusClass)
-  
 
-TCGAvisualize_Heatmap(dataFilt,
-                      col.metadata =  colData(tcga_br)[,"barcode"],
-                      row.metadata = rownames(dataFilt),
-                                                         
-                                                         
-                                                      
-                      type = "expression",
-                      color.levels = colorRampPalette(c("green", "black", "red"))(n = 5))
-                      
-library(ComplexHeatmap)
 
-                      
-                      
-      
 
-TCGAvisualize_Heatmap(
-  data = t(dataFilt),
-  col.metadata =  colData(tcga_br)[,
-                                   c("barcode",
-                                     "groupsHC",
-                                     "paper_Histology",
-                                     "paper_IDH.codel.subtype")
-  ],
-  col.colors =  list(
-    groupsHC = c(
-      "EC1"="black",
-      "EC2"="red",
-      "EC3"="blue",
-      "EC4"="green3")
-  ),
-  sortCol = "groupsHC",
-  type = "expression", # sets default color
-  scale = "row", # use z-scores for better visualization. Center gene expression level around 0.
-  title = "Heatmap from concensus cluster", 
-  filename = "case2_Heatmap.png",
-  extremes = seq(-2,2,1),
-  color.levels = colorRampPalette(c("green", "black", "red"))(n = 5),
-  cluster_rows = TRUE,
-  cluster_columns = FALSE,
-  width = 1000,
-  height = 500
+#PCA
+rownames(dataFilt)<- geneIDs$SYMBOL
+
+pca <- TCGAvisualize_PCA(
+  dataFilt = dataFilt,
+  dataDEGsFiltLevel = dataDEGsFiltLevel,
+  ntopgenes = 200, 
+  group1 = samplesNT,
+  group2 =  samplesTP
 )
-
-
-plot(1,3)
-
-plot(c(1, 8), c(3, 10))
-
 
