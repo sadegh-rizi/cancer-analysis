@@ -1,32 +1,36 @@
-# 
+---
+title: "pipeline"
+output: html_document
+date: "2023-11-08"
+---
+Installing packages and dependencies.
+```{r}
 # if (!require("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
 # BiocManager::install(version = "3.17")
 # 
 
-# if (!require("BiocManager", quietly = TRUE))
-#   install.packages("BiocManSeq2")
-# ager")
-# 
-# BiocManager::install("DE
-# pkgs = c( "edgeR", "gplots", "tximport", "biomaRt")
-# BiocManager::install(pkgs)
-BiocManager::install("ComplexHeatmap")
-
-BiocManager::install("ConsensusClusterPlus")
 
 
-BiocManager::install("TCGAbiolinks")
-browseVignettes("TCGAbiolinks")
+pkgs = c( "edgeR", "gplots", "tximport", "biomaRt","BiocManSeq2","ComplexHeatmap",
+          "ConsensusClusterPlus","TCGAbiolinks")
+BiocManager::install(pkgs)
 
+
+
+
+```
+
+Loading Packages
+```{r}
 library(TCGAbiolinks)
 library(dplyr)
 library(DT)
 library(DESeq2)
-packageVersion("TCGAbiolinks")
+```
 
-getProjectSummary('TCGA-STAD')
-
+Getting Query
+```{r}
 query <- GDCquery(
   project = c("TCGA-STAD"),#Stomach
   data.category = "Transcriptome Profiling",
@@ -46,7 +50,11 @@ datatable(
   rownames = FALSE
 )
 
+```
 
+
+Choosing Barcodes and downloading Data
+```{r}
 query <- GDCquery(
   project = c("TCGA-STAD"),#Stomach
   data.category = "Transcriptome Profiling",
@@ -61,16 +69,12 @@ query <- GDCquery(
             'TCGA-HU-8238-11A-01R-2343-13')
 )
 
-datatable(
-  getResults(query), 
-  filter = 'top',
-  options = list(scrollX = TRUE, keys = TRUE, pageLength = 5), 
-  rownames = FALSE
-)
-
 getResults(query)
 GDCdownload(query)
+```
 
+
+```{r}
 tcga_br<-GDCprepare(query,summarizedExperiment = TRUE)
 tcga_br_counts <- assay(tcga_br,'unstranded')  
 tcga_br_tpm <- assay(tcga_br,'tpm_unstrand') 
@@ -78,12 +82,19 @@ br_Cor <-  TCGAanalyze_Preprocessing(tcga_br)
 br_Cor
 
 
-# normalization of genes
+```
+
+Preprocessing:
+1- Normalization
+-for gene length
+-for GC content
+-for total expression
+2- data Filtering
+```{r}
 dataNorm <- TCGAanalyze_Normalization(
   tabDF = br_Cor, 
   geneInfo =  geneInfoHT
-)
-
+  
 # quantile filter of genes
 # dataFilt <- TCGAanalyze_Filtering(
 #   tabDF = dataNorm,
@@ -95,6 +106,10 @@ dataFilt <- t(dataNorm %>%
   TCGAanalyze_Filtering(method = "filter1") %>%  
   TCGAanalyze_Filtering(method = "filter2",foldChange = 1))
 #dataFilt=dataFilt[c(sample(1:5000,2000)),]
+)
+```
+
+```{r}
 # selection of normal samples "NT"
 samplesNT <- TCGAquery_SampleTypes(
   barcode = colnames(dataFilt),
@@ -131,11 +146,11 @@ dataDEGsFiltLevel <- TCGAanalyze_LevelTab(
   TableCond2 = dataFilt[,samplesNT]
 )
 
+```
 
-  
-
-
-#BiocManager::install("EnsDb.Hsapiens.v86")
+Enrichment Analysis EA (TCGAVisualize)
+Gene Ontology (GO) and Pathway enrichment barPlot
+```{r}
 library(EnsDb.Hsapiens.v86)
 
 Genelist <- rownames(dataDEGsFiltLevel)
@@ -146,8 +161,7 @@ ansEA <- TCGAanalyze_EAcomplete(
   RegulonList = geneIDs$SYMBOL
 )
 
-# Enrichment Analysis EA (TCGAVisualize)
-# Gene Ontology (GO) and Pathway enrichment barPlot
+
 
 TCGAvisualize_EAbarplot(
   tf = rownames(ansEA$ResBP), 
@@ -159,60 +173,5 @@ TCGAvisualize_EAbarplot(
   nBar = 10
 )
 
-data_Hc2 <- TCGAanalyze_Clustering(
-  tabDF = dataFilt,method='consensus',methodHC = 'ward.D2')
-
-
-
-colData(tcga_br)$groupsHC <- paste0("EC",data_Hc2[[4]]$consensusClass)
-  
-
-TCGAvisualize_Heatmap(dataFilt,
-                      col.metadata =  colData(tcga_br)[,"barcode"],
-                      row.metadata = rownames(dataFilt),
-                                                         
-                                                         
-                                                      
-                      type = "expression",
-                      color.levels = colorRampPalette(c("green", "black", "red"))(n = 5))
-                      
-library(ComplexHeatmap)
-
-                      
-                      
-      
-
-TCGAvisualize_Heatmap(
-  data = t(dataFilt),
-  col.metadata =  colData(tcga_br)[,
-                                   c("barcode",
-                                     "groupsHC",
-                                     "paper_Histology",
-                                     "paper_IDH.codel.subtype")
-  ],
-  col.colors =  list(
-    groupsHC = c(
-      "EC1"="black",
-      "EC2"="red",
-      "EC3"="blue",
-      "EC4"="green3")
-  ),
-  sortCol = "groupsHC",
-  type = "expression", # sets default color
-  scale = "row", # use z-scores for better visualization. Center gene expression level around 0.
-  title = "Heatmap from concensus cluster", 
-  filename = "case2_Heatmap.png",
-  extremes = seq(-2,2,1),
-  color.levels = colorRampPalette(c("green", "black", "red"))(n = 5),
-  cluster_rows = TRUE,
-  cluster_columns = FALSE,
-  width = 1000,
-  height = 500
-)
-
-
-plot(1,3)
-
-plot(c(1, 8), c(3, 10))
-
+```
 
