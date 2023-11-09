@@ -13,7 +13,6 @@ editor_options:
 ---
 
 Installing packages and dependencies.
-
 ```{r}
 # if (!require("BiocManager", quietly = TRUE))
 #   install.packages("BiocManager")
@@ -32,7 +31,6 @@ BiocManager::install(pkgs)
 ```
 
 Loading Packages
-
 ```{r}
 library(TCGAbiolinks)
 library(dplyr)
@@ -41,7 +39,6 @@ library(DESeq2)
 ```
 
 Getting Query
-
 ```{r}
 query <- GDCquery(
   project = c("TCGA-STAD"),#Stomach
@@ -65,7 +62,6 @@ datatable(
 ```
 
 Choosing Barcodes and downloading Data
-
 ```{r}
 query <- GDCquery(
   project = c("TCGA-STAD"),#Stomach
@@ -85,6 +81,8 @@ getResults(query)
 GDCdownload(query)
 ```
 
+Preprocessing.
+TCGAanalyze_Preprocessing removes outliers. 
 ```{r}
 tcga_br<-GDCprepare(query,summarizedExperiment = TRUE)
 tcga_br_counts <- assay(tcga_br,'unstranded')  
@@ -97,7 +95,6 @@ br_Cor <-  TCGAanalyze_Preprocessing(tcga_br)
 
 Preprocessing: 1- Normalization -for gene length -for GC content -for
 total expression 2- data Filtering
-
 ```{r}
 dataNorm <- TCGAanalyze_Normalization(
   tabDF = br_Cor, 
@@ -117,6 +114,7 @@ dataFilt <- t(dataNorm %>%
 
 ```
 
+Performing differential expression analysis.(DEA)
 ```{r}
 # selection of normal samples "NT"
 samplesNT <- TCGAquery_SampleTypes(
@@ -156,9 +154,9 @@ dataDEGsFiltLevel <- TCGAanalyze_LevelTab(
 
 ```
 
+
 Enrichment Analysis EA (TCGAVisualize) Gene Ontology (GO) and Pathway
 enrichment barPlot
-
 ```{r}
 library(EnsDb.Hsapiens.v86)
 
@@ -199,15 +197,6 @@ pca <- TCGAvisualize_PCA(
 
 
 ```
-
-
-
-
-
-
-
-
-
 Clustering 
 (Upon execution, R crashes. !?)
 ```{r}
