@@ -98,6 +98,13 @@ datatable(treatments
 ,  options = list(scrollX = TRUE, keys = TRUE, pageLength = 5), 
           rownames = FALSE)
 
+
+#Saving the files
+write.csv(tcga_br_counts,"STAD_counts.csv")
+write.csv(tcga_br_tpm,"STAD_tpm.csv")
+write.csv(gene_data,"gene_data.csv")
+write.csv(treatments,"treatments.csv")
+
   #Excluding PAR genes : 44 genes 
 #Working with 20. samples for the start
 #Transposing such that the samples are in rows and genes in columns
@@ -118,7 +125,9 @@ samplesTP <- TCGAquery_SampleTypes(
   typesample = c("TP")
 )
 sample_type=ifelse(rownames(tcga_br_tpm) %in% samplesNT,"Normal","Tumor")
+sample_type
 
+write.csv(sample_type,"sample_type.csv")
 pca <- prcomp(tcga_br_tpm)
 plot(pca)
 pca.x <- as.data.frame(pca$x)
@@ -158,6 +167,3 @@ tpm.dist <- dist(tcga_br_tpm,method = "euclidean")
 tpm.hc <- hclust(d=tpm.dist,method="ward.D2")
 fviz_dend(tpm.hc,cex=0.4)
 
-
-write.csv(tcga_br_counts,"STAD_counts.csv")
-write.csv(tcga_br_tpm,"STAD_tpm.csv")
