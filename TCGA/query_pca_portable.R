@@ -2,14 +2,14 @@ library(dplyr)
 library(ggplot2)
 library("factoextra")
 load("Last.RData")
-
+# Inputs -------------
 tcga_br_counts <- read.csv("STAD_counts.csv",header=TRUE,row.names = 1)
 tcga_br_tpm <- read.csv("STAD_tpm.csv",header=TRUE,row.names = 1)
 n<-448
 tcga_br_counts = t(tcga_br_counts[!grepl("PAR",rownames(tcga_br_counts)),1:n])
 tcga_br_tpm = t(tcga_br_tpm[!grepl("PAR",rownames(tcga_br_tpm)),1:n])
 sample_type <- read.csv("sample_type.csv")$x
-
+# PCA initial test on tpm data ---------------
 pca <- prcomp(tcga_br_tpm)
 plot(pca)
 pca.x <- as.data.frame(pca$x)
@@ -58,34 +58,8 @@ perform_pca <- function(data,suffix){
 perform_pca(tcga_br_counts,"counts")
 perform_pca(tcga_br_tpm,"tpm")
 perform_pca(log2(1+tcga_br_tpm),"tpm_log")
- perform_hclust <- function(data,suffix){
-  
-}  
-  
-  
-#Tumor and Normal PCA
-ggplot(pca.x)+geom_point(aes(PC1,PC2,color=sample_type))+ggtitle("Normal and Tumor")
-ggsave("tumor_normal_pca.png",width = 7,height = 5)
 
-
-#Normal PCA
-ggplot(pca.x[sample_type=="Normal",])+geom_point(aes(PC1,PC2))+ggtitle("Normal Cases")
-ggsave("normal_pca.png",width = 7,height = 5)
-
-#Tumor PCA
-ggplot(pca.x[sample_type=="Tumor",])+geom_point(aes(PC1,PC2))+ggtitle("Tumor Cases")
-ggsave("tumor_pca.png",width = 7,height = 5)
-
-ggplot(pca.x[sample_type=="Tumor",])+geom_point(aes(PC1,PC2,color=sample_data[sample_type=="Tumor","ajcc_pathologic_stage"]))+
-  ggtitle("Tumor Cases")
-ggsave("tumor_stage_pca.png",width = 7,height = 5)
-  
-
-
-
-
-
-#Hierarchial clustering
+# Hierarchial clustering -------------
 
 #HC on TPM data
 # Creating the distance matrix for tumors
@@ -93,11 +67,9 @@ tcga_br_tpm_tumor <- tcga_br_tpm[sample_type=="Tumor",]
 
 tpm.dist <- dist(tcga_br_tpm_tumor,method = "euclidean")
 
-#Creating 
 
-
+# Initial test on hierarchial clustering 
 tpm.hc <- hclust(d=tpm.dist,method="average")
-
 fviz_dend(tpm.hc,cex=0.1)
 tpm.coph <- cophenetic(tpm.hc)
 cor(tpm.dist,tpm.coph)
@@ -154,20 +126,6 @@ for(i in k){
   )
   ggsave(paste0("hclust_",i,".png"),width = 20,height = 10)
 }
-
-fviz_dend(hc_list$average, k= 10, # Cut in 10 groups
-          cex = 0.1, # label size
-          
-          color_labels_by_k = TRUE, # color labels by groups
-          rect = TRUE # Add rectangle around groups
-)
-
-
-# ggsave("test.png",width = 20,height = 10)
-# 
-# ggsave("hclust_tumor.png",width = 20,height = 10)
-
-
 
 
 
